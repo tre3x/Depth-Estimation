@@ -4,7 +4,7 @@ from typing import Tuple
 import numpy as np
 from scipy.optimize import least_squares
 
-from rectification_utils.loop_zhang.core import Array, estimate_epipoles, normalize, skew
+from rectification_utils.core import Array, estimate_epipoles, normalize, skew
 from typing import Generic, TypeVar
 try:
     from typing import Literal  # type: ignore

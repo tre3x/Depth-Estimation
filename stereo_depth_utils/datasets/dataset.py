@@ -174,10 +174,9 @@ class KITTIDataset(Dataset):
 
 class DrivingStereoDataset(Dataset):
     def __init__(self, left_imagepath, right_imagepath):
-
         self.left_imagepath = left_imagepath
         self.right_imagepath = right_imagepath
-        self.left_filename = '.'.join(self.left_imagepath.split('/')[-1].split('.')[:-1])
+        self.left_filename = self.left_imagepath.split('/')[-1]
 
     def load_image(self, filename):
         return Image.open(filename).convert('RGB')

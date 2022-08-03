@@ -11,7 +11,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-from rectification_utils.loop_zhang import stereo_rectify_uncalibrated as stereo_rectify_uncalibrated_lz
+from rectification_utils.main import stereo_rectify_uncalibrated as stereo_rectify_uncalibrated_lz
 
 __all__ = ["Array"]
 

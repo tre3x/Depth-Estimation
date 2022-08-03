@@ -4,7 +4,7 @@ from typing import Tuple
 import cv2
 import numpy as np
 
-from rectification_utils.loop_zhang.core import Array
+from rectification_utils.core import Array
 
 from .projective_transform import estimate_projective_transform
 from .shearing_transform import estimate_shearing_transform
