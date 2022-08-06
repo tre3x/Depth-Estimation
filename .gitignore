@@ -2,3 +2,6 @@
 /testimg
 /prediction_stereo
 /rectified_output
+/monocular-depth
+/final_depth
+/monoculardepth_utils/networks

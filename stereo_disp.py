@@ -6,18 +6,18 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
-from stereo_depth_utils.datasets import __datasets__
+from stereo_depth_utils.datasets import dataset as Dataset
 from stereo_depth_utils.models import __models__
 from stereo_depth_utils.kitticolormap import *
 
 class stereo_depth():
-    def __init__(self, modeltype, dataset, imagepathLeft, imagepathRight, loadckpt, maxdisp=192):
+    def __init__(self, modeltype, imageLeft, imageRight, loadckpt, maxdisp=192, store = False):
         self.modeltype = modeltype
         self.maxdisp = maxdisp
-        self.dataset = dataset
-        self.imagepathLeft = imagepathLeft
-        self.imagepathRight = imagepathRight
+        self.imageLeft = imageLeft
+        self.imageRight = imageRight
         self.loadckpt = loadckpt
+        self.store = store
 
     def tensor2numpy(self, vars):
         if isinstance(vars, np.ndarray):
@@ -30,7 +30,8 @@ class stereo_depth():
     def test(self):
         print("Generating the disparity maps...")
         here = os.path.dirname(os.path.abspath(__file__))
-        os.makedirs(os.path.join(here, "prediction_stereo"), exist_ok=True)
+        if self.store:
+            os.makedirs(os.path.join(here, "prediction_stereo"), exist_ok=True)
 
 
         disp_est_tn = self.test_sample(self.test_dataset)
@@ -41,8 +42,13 @@ class stereo_depth():
         fn = os.path.join(here, "prediction_stereo", "{}".format(left_filename))
 
         disp_est = kitti_colormap(disp_est_np[0])
-        cv2.imwrite(fn, disp_est)
+        disp_est = cv2.bitwise_not(disp_est)
+        disp_est = cv2.cvtColor(disp_est, cv2.COLOR_BGR2GRAY)
+        disp_est = cv2.GaussianBlur(disp_est,(5,5), 0)
+        if self.store:
+            cv2.imwrite(fn, disp_est)
         print("Stereo Depth Estimated!")
+        return disp_est
 
     def test_sample(self, sample):
         self.model.eval()
@@ -56,9 +62,7 @@ class stereo_depth():
     def run(self):
         cudnn.benchmark = True
 
-        StereoDataset = __datasets__[self.dataset]
-        self.test_dataset = StereoDataset(self.imagepathLeft, self.imagepathRight)
-
+        self.test_dataset = Dataset.StereoDataset(self.imageLeft, self.imageRight, self.store)
         self.model = __models__[self.modeltype](self.maxdisp)
         self.model = nn.DataParallel(self.model)
 
@@ -66,8 +70,8 @@ class stereo_depth():
         state_dict = torch.load(self.loadckpt, map_location=torch.device("cpu"))
         self.model.load_state_dict(state_dict['model'])
 
-        self.test()
-            
+        disp = self.test()
+        return disp            
 
 
 if __name__ == '__main__':

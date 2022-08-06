@@ -110,9 +110,12 @@ def store_images(left, right, name):
     TXT_PATH = os.path.join(here, "rectified_output", "textlist.txt")
 
 
-def rectify(path1, path2):
+def rectify(path1, path2, store=False):
     left_image = cv2.imread(path1)
     right_image = cv2.imread(path2)
+    left_image = cv2.resize(left_image, (1248, 384))
+    right_image = cv2.resize(right_image, (1248, 384))
+    
     left_image_gray = cv2.cvtColor(left_image, cv2.COLOR_BGR2GRAY)
     right_image_gray = cv2.cvtColor(right_image, cv2.COLOR_BGR2GRAY)
 
@@ -123,8 +126,10 @@ def rectify(path1, path2):
 
     left_rectified_lz = cv2.warpPerspective(left_image, H1_lz, img_size)
     right_rectified_lz = cv2.warpPerspective(right_image, H2_lz, img_size)
-    name = ".".join(path1.split('/')[-1].split(".")[:-1])
-    store_images(left_rectified_lz, right_rectified_lz, name)
+    if store:
+        name = ".".join(path1.split('/')[-1].split(".")[:-1])
+        store_images(left_rectified_lz, right_rectified_lz, name)
+    return left_rectified_lz, right_rectified_lz
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Rectification tool of uncalibrated stereo image')
